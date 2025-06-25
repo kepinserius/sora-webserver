@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rustweb-server
+    ports:
+      - "8080:8080"  # HTTP
+      - "8443:8443"  # HTTPS
+    volumes:
+      - ./www:/app/www                 # Website content
+      - ./logs:/app/logs               # Log files
+      - ./config:/app/config           # Configuration files
+      - ./certs:/app/certs             # SSL/TLS certificates
+    environment:
+      - RUST_LOG=info                  # Log level
+    restart: unless-stopped
+    networks:
+      - web-network
+
+  # Example for a reverse proxy setup
+  api-service:
+    image: node:16-alpine
+    container_name: api-service
+    working_dir: /usr/src/app
+    volumes:
+      - ./api-service:/usr/src/app
+    command: >
+      sh -c "echo 'console.log(\"HTTP server listening on port 3000\"); 
+            require(\"http\").createServer((req, res) => {
+              res.writeHead(200, {\"Content-Type\": \"application/json\"});
+              res.end(JSON.stringify({\"message\": \"Hello from API\", \"timestamp\": new Date().toISOString()}));
+            }).listen(3000);' > server.js && node server.js"
+    ports:
+      - "3000:3000"
+    networks:
+      - web-network
+
+networks:
+  web-network:
+    driver: bridge
+
+# Additional configurations:
+#
+# To use with Traefik as a reverse proxy:
+# 
+# services:
+#   webserver:
+#     # ... (existing config)
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.rustweb.rule=Host(`example.com`)"
+#       - "traefik.http.routers.rustweb.entrypoints=websecure"
+#       - "traefik.http.routers.rustweb.tls=true"
+#     networks:
+#       - web-network
+#       - traefik-network
+#
+# networks:
+#   traefik-network:
+#     external: true 

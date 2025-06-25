@@ -1,0 +1,283 @@
+# RustWeb Server Main Configuration File
+# This file contains all the main settings for the web server
+
+#
+# SERVER CORE SETTINGS
+#
+[server]
+# Server bind address and port for HTTP
+http_addr = "0.0.0.0:8080"
+
+# Enable HTTPS
+enable_https = true
+# Server bind address and port for HTTPS
+https_addr = "0.0.0.0:8443"
+
+# Worker threads (0 = auto-detect based on CPU cores)
+workers = 0
+
+# Default document root
+document_root = "www"
+
+# Default index files (in order of priority)
+index_files = ["index.html", "index.htm", "default.html"]
+
+# Maximum request body size (in bytes, 10MB default)
+max_body_size = 10485760
+
+# Connection timeout in seconds
+timeout = 60
+
+# Keep-alive connection timeout
+keep_alive_timeout = 5
+
+#
+# TLS/HTTPS SETTINGS
+#
+[tls]
+# Certificate and key files (PEM format)
+cert_file = "certs/server.crt"
+key_file = "certs/server.key"
+
+# TLS protocols to enable
+protocols = ["TLSv1.2", "TLSv1.3"]
+
+# TLS cipher preferences
+ciphers = "TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256"
+
+# HSTS settings (HTTP Strict Transport Security)
+enable_hsts = true
+hsts_max_age = 31536000  # 1 year in seconds
+hsts_include_subdomains = true
+hsts_preload = false
+
+#
+# LOGGING CONFIGURATION
+#
+[logging]
+# Log file path (if empty, logs to stdout)
+log_file = "logs/server.log"
+
+# Log level: trace, debug, info, warn, error
+log_level = "info"
+
+# Log format: common, combined, json
+log_format = "combined"
+
+# Access log
+access_log = "logs/access.log"
+# Error log
+error_log = "logs/error.log"
+
+# Log rotation settings
+rotate_size = "100MB"  # Rotate when file reaches this size
+rotate_keep = 10       # Number of rotated files to keep
+
+#
+# SECURITY SETTINGS
+#
+[security]
+# Protect against clickjacking attacks
+x_frame_options = "SAMEORIGIN"
+
+# CSP (Content Security Policy)
+content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+
+# XSS Protection
+x_xss_protection = "1; mode=block"
+
+# Content Type Options
+x_content_type_options = "nosniff"
+
+# Referrer Policy
+referrer_policy = "no-referrer-when-downgrade"
+
+# Permissions Policy
+permissions_policy = "geolocation=(), microphone=(), camera=()"
+
+#
+# CORS (Cross-Origin Resource Sharing) settings
+#
+[cors]
+enable = true
+allow_origins = ["*"]  # Can be ["*"] for all or ["https://example.com", "https://sub.example.com"]
+allow_methods = ["GET", "POST", "OPTIONS", "PUT", "DELETE"]
+allow_headers = ["Content-Type", "Authorization"]
+allow_credentials = true
+max_age = 86400  # 24 hours
+
+#
+# FIREWALL SETTINGS
+#
+[firewall]
+enable = false
+# Block list (CIDR notation)
+block_list = [
+  "192.168.1.100/32",
+  "10.10.0.0/16"
+]
+# Allow list (these override the block list)
+allow_list = [
+  "127.0.0.1/32",
+  "192.168.1.10/32"
+]
+# Countries to block (ISO country codes)
+block_countries = []
+# Block specific user agents (regex patterns)
+block_user_agents = [
+  "^BadBot/\\d+\\.\\d+",
+  "^ScraperBot"
+]
+
+#
+# RATE LIMITING
+#
+[rate_limiter]
+enable = true
+# Requests per window
+requests = 100
+# Time window in seconds
+window = 60  # 1 minute
+# Apply per IP address
+per_ip = true
+# IPs excluded from rate limiting
+whitelist = ["127.0.0.1", "192.168.1.100"]
+
+#
+# COMPRESSION SETTINGS
+#
+[compression]
+enable = true
+# Compression level (1-9, where 9 is maximum compression)
+level = 6
+# Minimum size to compress (in bytes)
+min_size = 1024
+# File types to compress (MIME types)
+types = [
+  "text/html", 
+  "text/css", 
+  "text/plain", 
+  "text/javascript", 
+  "application/javascript",
+  "application/json",
+  "application/xml",
+  "image/svg+xml"
+]
+
+#
+# CACHE SETTINGS
+#
+[cache]
+enable = true
+# Maximum cache size in MB
+max_size = 100
+# Default TTL in seconds
+default_ttl = 3600  # 1 hour
+# Custom TTLs for specific paths (in seconds)
+ttl_rules = [
+  { path = "/static/*", ttl = 86400 },      # 24 hours
+  { path = "/images/*", ttl = 604800 },     # 1 week
+  { path = "/dynamic/*", ttl = 60 }         # 1 minute
+]
+# Cache control headers
+cache_control = "public, max-age=3600"
+# Use ETags
+use_etags = true
+
+#
+# URL REWRITING
+#
+[rewrite]
+enable = true
+rules = [
+  # Redirect HTTP to HTTPS
+  { pattern = "^http://(.*)$", target = "https://$1", type = "redirect", code = 301 },
+  
+  # Rewrite rule for SPA (Single Page Application)
+  { pattern = "^/app/.*$", target = "/app/index.html", type = "rewrite" },
+  
+  # Remove trailing slashes
+  { pattern = "(.+)/$", target = "$1", type = "redirect", code = 301 },
+  
+  # Add www prefix
+  { pattern = "^https://example.com/(.*)$", target = "https://www.example.com/$1", type = "redirect", code = 301 }
+]
+
+#
+# REVERSE PROXY SETTINGS
+#
+[[proxy]]
+# Enable this proxy
+enable = true
+# Path to match for this proxy rule
+path = "/api"
+# Target server to proxy to
+target = "http://localhost:3000"
+# Preserve host header
+preserve_host = false
+# Add headers
+add_headers = { "X-Forwarded-By" = "RustWeb" }
+# Websocket support
+websocket = false
+# Buffer size for proxy requests (bytes)
+buffer_size = 8192
+
+[[proxy]]
+enable = true
+path = "/app"
+target = "http://localhost:5000"
+preserve_host = true
+websocket = true
+
+#
+# STATIC FILES SERVING
+#
+[static_files]
+enable = true
+# Default cache time for static files (seconds)
+cache_time = 86400  # 24 hours
+# Directory for serving static files (relative to document_root)
+directory = "/"
+# Custom headers for static files
+headers = { "X-Served-By" = "RustWeb" }
+# File extension to MIME type mappings (only uncommon ones needed)
+mime_types = [
+  { ext = "wasm", mime = "application/wasm" },
+  { ext = "webp", mime = "image/webp" },
+  { ext = "avif", mime = "image/avif" }
+]
+
+#
+# VIRTUAL HOSTS
+#
+# Basic virtual host configuration in server.toml
+# More complex setups should use separate files in the config directory
+[[vhosts]]
+hostname = "example.com"
+document_root = "www/example.com"
+error_pages = { 
+  "404" = "404.html", 
+  "500" = "500.html" 
+}
+index_files = ["index.html"]
+
+[[vhosts]]
+hostname = "api.example.com"
+# This virtual host acts as a reverse proxy
+proxy_target = "http://localhost:8001"
+# Access log specific to this vhost
+access_log = "logs/api.example.com-access.log"
+
+#
+# SSL/TLS CERTIFICATES FOR VHOSTS
+#
+# Virtual hosts can have their own certificates
+[[certificates]]
+hostnames = ["example.com", "www.example.com"]
+cert_file = "certs/example.com.crt"
+key_file = "certs/example.com.key"
+
+[[certificates]]
+hostnames = ["api.example.com"]
+cert_file = "certs/api.example.com.crt"
+key_file = "certs/api.example.com.key" 
