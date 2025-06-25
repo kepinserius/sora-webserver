@@ -1,4 +1,4 @@
-# RustWeb Server
+# Sora-webserver
 
 A high-performance, modular web server built in Rust with features similar to Apache/Nginx.
 
@@ -27,8 +27,8 @@ A high-performance, modular web server built in Rust with features similar to Ap
 
 1. Clone the repository
 ```bash
-git clone https://github.com/username/rustweb-server.git
-cd rustweb-server
+git clone https://github.com/kepinserius/sora-webserver.git
+cd sora-webserver
 ```
 
 2. Build the project
@@ -106,7 +106,7 @@ For API details and integration options, see the API documentation at `/docs` wh
 
 ---
 
-# RustWeb Server (Bahasa Indonesia)
+# Sora-webserver (Bahasa Indonesia)
 
 Server web modular berkinerja tinggi yang dibangun dengan Rust dengan fitur seperti Apache/Nginx.
 
@@ -135,8 +135,8 @@ Server web modular berkinerja tinggi yang dibangun dengan Rust dengan fitur sepe
 
 1. Clone repositori
 ```bash
-git clone https://github.com/username/rustweb-server.git
-cd rustweb-server
+git clone https://github.com/kepinserius/sora-webserver.git
+cd sora-webserver
 ```
 
 2. Build proyek
