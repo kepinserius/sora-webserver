@@ -99,4 +99,8 @@ yarn-error.log
 *.bak
 *.backup
 *~
-*.old 
+*.old
+
+# Documentation files
+tatacara.md
+tatacaradeploy.md 
