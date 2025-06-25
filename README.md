@@ -210,4 +210,4 @@ Lihat file `config/server.toml` untuk referensi lengkap opsi konfigurasi:
 
 ## 📝 Dokumentasi API
 
-Untuk detail API dan opsi integrasi, lihat dokumentasi API di `/docs` saat server berjalan. 
+Untuk detail API dan opsi integrasi, lihat dokumentasi API di `/docs` saat server berjalan.

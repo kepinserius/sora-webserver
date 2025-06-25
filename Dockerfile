@@ -1,6 +1,6 @@
 FROM rust:1.70 as builder
 
-WORKDIR /usr/src/webserver
+WORKDIR /usr/src/sora-webserver
 
 # Copy the Cargo files to cache dependencies
 COPY Cargo.toml Cargo.lock ./
@@ -32,12 +32,12 @@ RUN mkdir -p /app/www /app/logs /app/certs /app/config
 WORKDIR /app
 
 # Copy the built binary
-COPY --from=builder /usr/src/webserver/target/release/webserver /app/
+COPY --from=builder /usr/src/sora-webserver/target/release/webserver /app/
 
 # Copy default config and static files
-COPY --from=builder /usr/src/webserver/config /app/config/
-COPY --from=builder /usr/src/webserver/www /app/www/
-COPY --from=builder /usr/src/webserver/certs /app/certs/
+COPY --from=builder /usr/src/sora-webserver/config /app/config/
+COPY --from=builder /usr/src/sora-webserver/www /app/www/
+COPY --from=builder /usr/src/sora-webserver/certs /app/certs/
 
 # Expose HTTP and HTTPS ports
 EXPOSE 8080 8443

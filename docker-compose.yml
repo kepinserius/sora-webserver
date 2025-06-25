@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: rustweb-server
+    container_name: sora-webserver
     ports:
       - "8080:8080"  # HTTP
       - "8443:8443"  # HTTPS
@@ -51,9 +51,9 @@ networks:
 #     # ... (existing config)
 #     labels:
 #       - "traefik.enable=true"
-#       - "traefik.http.routers.rustweb.rule=Host(`example.com`)"
-#       - "traefik.http.routers.rustweb.entrypoints=websecure"
-#       - "traefik.http.routers.rustweb.tls=true"
+#       - "traefik.http.routers.sora-webserver.rule=Host(`example.com`)"
+#       - "traefik.http.routers.sora-webserver.entrypoints=websecure"
+#       - "traefik.http.routers.sora-webserver.tls=true"
 #     networks:
 #       - web-network
 #       - traefik-network

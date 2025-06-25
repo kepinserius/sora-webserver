@@ -1,36 +1,36 @@
-# Cara Menggunakan RustWeb Server dengan Mudah seperti Apache
+# Cara Menggunakan Sora-webserver dengan Mudah seperti Apache
 
-Untuk membuat RustWeb Server mudah digunakan oleh orang lain seperti Apache, berikut adalah panduan lengkapnya:
+Untuk membuat Sora-webserver mudah digunakan oleh orang lain seperti Apache, berikut adalah panduan lengkapnya:
 
 ## 1. Metode Penggunaan
 
 ### Penggunaan Langsung (Seperti Apache)
 
 1. **Instalasi Paket**
-   - Buatlah paket instalasi (.deb, .rpm) agar RustWeb Server dapat diinstal dengan mudah melalui `apt` atau `yum`
+   - Buatlah paket instalasi (.deb, .rpm) agar Sora-webserver dapat diinstal dengan mudah melalui `apt` atau `yum`
    - Contoh perintah instalasi yang ideal:
    ```bash
-   sudo apt install rustweb-server
+   sudo apt install sora-webserver
    ```
 
 2. **Struktur Direktori Standar**
-   - `/etc/rustweb/` - Untuk file konfigurasi
+   - `/etc/sora-webserver/` - Untuk file konfigurasi
    - `/var/www/html/` - Untuk file website
-   - `/var/log/rustweb/` - Untuk log server
-   - `/var/lib/rustweb/` - Untuk data cache dan lainnya
+   - `/var/log/sora-webserver/` - Untuk log server
+   - `/var/lib/sora-webserver/` - Untuk data cache dan lainnya
 
 3. **Service System**
    - Daftarkan sebagai systemd service agar mudah dijalankan/dihentikan:
    ```bash
-   sudo systemctl start rustweb
-   sudo systemctl enable rustweb
+   sudo systemctl start sora-webserver
+   sudo systemctl enable sora-webserver
    ```
 
 ## 2. Penggunaan dengan Docker
 
 1. **Pull Image Docker**
    ```bash
-   docker pull username/rustweb-server
+   docker pull kepinserius/sora-webserver
    ```
 
 2. **Jalankan Container**
@@ -38,7 +38,7 @@ Untuk membuat RustWeb Server mudah digunakan oleh orang lain seperti Apache, ber
    docker run -d -p 8080:8080 -p 8443:8443 \
      -v /path/ke/website:/app/www \
      -v /path/ke/config:/app/config \
-     --name rustweb username/rustweb-server
+     --name sora-webserver kepinserius/sora-webserver
    ```
 
 3. **Menggunakan Docker Compose**
@@ -49,30 +49,30 @@ Untuk membuat RustWeb Server mudah digunakan oleh orang lain seperti Apache, ber
    docker-compose up -d
    ```
 
-## 3. Hosting RustWeb Server
+## 3. Hosting Sora-webserver
 
 ### Opsi Self-Hosting (Mengelola Sendiri)
 
 1. **VPS (Virtual Private Server)**
    - Sewa VPS dari penyedia seperti DigitalOcean, Linode, atau AWS EC2
-   - Instal RustWeb Server di VPS
+   - Instal Sora-webserver di VPS
    - Konfigurasikan firewall untuk membuka port 80 dan 443
    - Arahkan domain ke IP VPS Anda
 
 2. **Dedicated Server**
    - Untuk trafik tinggi, sewa server dedicated
-   - Instal dan konfigurasikan RustWeb Server
+   - Instal dan konfigurasikan Sora-webserver
    - Optimalkan performa server sesuai kebutuhan
 
 ### Opsi Cloud Hosting
 
 1. **Container Service**
    - Gunakan AWS ECS, Google Cloud Run, atau Azure Container Instances
-   - Deploy image Docker RustWeb Server
+   - Deploy image Docker Sora-webserver
    - Konfigurasikan load balancer dan auto-scaling
 
 2. **Kubernetes**
-   - Deploy RustWeb Server di cluster Kubernetes
+   - Deploy Sora-webserver di cluster Kubernetes
    - Konfigurasikan Ingress controller untuk routing
    - Manfaatkan auto-scaling dan self-healing
 
@@ -82,40 +82,40 @@ Untuk membuat RustWeb Server mudah digunakan oleh orang lain seperti Apache, ber
    - Instal sistem operasi Linux (Ubuntu/Debian direkomendasikan)
    - Pastikan paket dasar terinstal (`build-essential`, `libssl-dev`)
 
-2. **Instal RustWeb Server**
+2. **Instal Sora-webserver**
    ```bash
    # Instal Rust dan Cargo
    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
    source $HOME/.cargo/env
 
-   # Clone dan build RustWeb Server
-   git clone https://github.com/username/rustweb-server
-   cd rustweb-server
+   # Clone dan build Sora-webserver
+   git clone https://github.com/kepinserius/sora-webserver
+   cd sora-webserver
    cargo build --release
    
    # Pindahkan binary ke direktori sistem
-   sudo cp target/release/webserver /usr/local/bin/rustweb
+   sudo cp target/release/webserver /usr/local/bin/sora-webserver
    ```
 
 3. **Buat Struktur Direktori**
    ```bash
-   sudo mkdir -p /etc/rustweb /var/www/html /var/log/rustweb /var/lib/rustweb/cache
+   sudo mkdir -p /etc/sora-webserver /var/www/html /var/log/sora-webserver /var/lib/sora-webserver/cache
    ```
 
 4. **Salin Konfigurasi Dasar**
    ```bash
-   sudo cp config/server.toml /etc/rustweb/
+   sudo cp config/server.toml /etc/sora-webserver/
    ```
 
 5. **Buat Service Systemd**
-   Buat file `/etc/systemd/system/rustweb.service`:
+   Buat file `/etc/systemd/system/sora-webserver.service`:
    ```
    [Unit]
-   Description=RustWeb Server
+   Description=Sora-webserver
    After=network.target
 
    [Service]
-   ExecStart=/usr/local/bin/rustweb -c /etc/rustweb/server.toml
+   ExecStart=/usr/local/bin/sora-webserver -c /etc/sora-webserver/server.toml
    WorkingDirectory=/var/www
    Restart=always
    User=www-data
@@ -128,8 +128,8 @@ Untuk membuat RustWeb Server mudah digunakan oleh orang lain seperti Apache, ber
 6. **Mulai dan Aktifkan Service**
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl start rustweb
-   sudo systemctl enable rustweb
+   sudo systemctl start sora-webserver
+   sudo systemctl enable sora-webserver
    ```
 
 7. **Tambahkan Website Anda**
@@ -144,7 +144,7 @@ Untuk membuat RustWeb Server mudah digunakan oleh orang lain seperti Apache, ber
    # Dapatkan sertifikat
    sudo certbot certonly --standalone -d domain-anda.com
    
-   # Konfigurasikan RustWeb untuk menggunakan sertifikat tersebut
+   # Konfigurasikan Sora-webserver untuk menggunakan sertifikat tersebut
    ```
 
 ## 5. Mempermudah Pengelolaan
@@ -164,13 +164,13 @@ Untuk membuat RustWeb Server mudah digunakan oleh orang lain seperti Apache, ber
 
 ## 6. Perbedaan dengan Apache
 
-RustWeb Server dapat digunakan seperti Apache, namun ada beberapa perbedaan:
+Sora-webserver dapat digunakan seperti Apache, namun ada beberapa perbedaan:
 
 1. **Performa Lebih Tinggi**
    - Dibuat dengan Rust, memiliki performa dan efisiensi memori lebih baik
 
 2. **Konfigurasi dengan TOML**
-   - Apache menggunakan format .conf, RustWeb menggunakan TOML yang lebih mudah dibaca
+   - Apache menggunakan format .conf, Sora-webserver menggunakan TOML yang lebih mudah dibaca
 
 3. **Fitur Modern**
    - Dukungan TLS modern, HTTP/2, dan fitur keamanan terkini
@@ -179,7 +179,7 @@ RustWeb Server dapat digunakan seperti Apache, namun ada beberapa perbedaan:
 
 ### Website Statis
 ```toml
-# /etc/rustweb/sites/website-statis.toml
+# /etc/sora-webserver/sites/website-statis.toml
 [vhost]
 hostname = "website-statis.com"
 document_root = "/var/www/website-statis"
@@ -187,7 +187,7 @@ document_root = "/var/www/website-statis"
 
 ### API Backend
 ```toml
-# /etc/rustweb/sites/api.toml
+# /etc/sora-webserver/sites/api.toml
 [vhost]
 hostname = "api.domain.com"
 
@@ -198,7 +198,7 @@ target = "http://localhost:3000"
 
 ### Website WordPress
 ```toml
-# /etc/rustweb/sites/wordpress.toml
+# /etc/sora-webserver/sites/wordpress.toml
 [vhost]
 hostname = "blog.domain.com"
 document_root = "/var/www/wordpress"
@@ -214,13 +214,13 @@ target = "http://localhost:9000"  # Untuk PHP-FPM
 
 1. **Periksa Status Service**
    ```bash
-   sudo systemctl status rustweb
+   sudo systemctl status sora-webserver
    ```
 
 2. **Periksa Log**
    ```bash
-   sudo journalctl -u rustweb
-   cat /var/log/rustweb/error.log
+   sudo journalctl -u sora-webserver
+   cat /var/log/sora-webserver/error.log
    ```
 
 3. **Masalah Port**
@@ -250,7 +250,7 @@ target = "http://localhost:9000"  # Untuk PHP-FPM
 
 ## 9. Perbandingan Dengan Server Web Lainnya
 
-| Fitur | RustWeb Server | Apache | Nginx |
+| Fitur | Sora-webserver | Apache | Nginx |
 |-------|----------------|--------|-------|
 | Bahasa | Rust | C | C |
 | Performa | Tinggi | Sedang | Tinggi |
@@ -264,6 +264,6 @@ target = "http://localhost:9000"  # Untuk PHP-FPM
 
 ## 10. Kesimpulan
 
-RustWeb Server menawarkan alternatif modern untuk Apache dan Nginx dengan performa tinggi dan konfigurasi yang lebih mudah dibaca. Dengan mengikuti panduan ini, Anda dapat menggunakan RustWeb Server dengan cara yang serupa dengan Apache, namun dengan keuntungan dari teknologi yang lebih baru dan efisien.
+Sora-webserver menawarkan alternatif modern untuk Apache dan Nginx dengan performa tinggi dan konfigurasi yang lebih mudah dibaca. Dengan mengikuti panduan ini, Anda dapat menggunakan Sora-webserver dengan cara yang serupa dengan Apache, namun dengan keuntungan dari teknologi yang lebih baru dan efisien.
 
 Untuk pertanyaan lebih lanjut atau dukungan, silakan kunjungi forum komunitas atau buat issue di repositori GitHub. 
