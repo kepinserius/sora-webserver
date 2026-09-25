@@ -7,7 +7,7 @@ pub mod firewall;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
-use hyper::{Body, Request, Response};
+use hyper::{Body, Request};
 use tokio_rustls::server::TlsStream;
 use tokio::net::TcpStream;
 

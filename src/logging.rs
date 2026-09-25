@@ -1,10 +1,9 @@
-use std::path::Path;
 use std::io::Write;
 
 use anyhow::{Context, Result};
-use tracing::{Level, info, error};
+use tracing::{info, error};
 use tracing_subscriber::{fmt, EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
-use hyper::{Body, Request, Response, StatusCode};
+use hyper::{Body, Request, Response};
 use chrono::Local;
 
 // Initialize the logger
@@ -13,7 +12,7 @@ pub fn init_logger() -> Result<()> {
     std::fs::create_dir_all("logs").context("Failed to create logs directory")?;
     
     // Set up file appender for access logs
-    let access_file = std::fs::OpenOptions::new()
+    let _access_file = std::fs::OpenOptions::new()
         .create(true)
         .append(true)
         .open("logs/access.log")

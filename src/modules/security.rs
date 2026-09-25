@@ -1,6 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use hyper::{Body, Request, Response, StatusCode, header};
+use hyper::{Body, Request, Response};
 use serde_json::Value;
 use tracing::debug;
 

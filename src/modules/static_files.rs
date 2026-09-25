@@ -1,13 +1,12 @@
 use std::path::{Path, PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use async_trait::async_trait;
-use hyper::{Body, Request, Response, StatusCode, Method, header};
+use hyper::{Body, Request, Response, header};
 use mime_guess::from_path;
 use serde_json::Value;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
-use tracing::{debug, error};
 
 use crate::modules::Module;
 use crate::security;
@@ -62,7 +61,7 @@ impl StaticFilesModule {
         &self,
         vhost: &VirtualHost,
         location: Option<&Location>,
-        path: &str,
+        _path: &str,
     ) -> PathBuf {
         // If location has a root, use that
         if let Some(loc) = location {
@@ -183,12 +182,12 @@ impl StaticFilesModule {
         
         // Sort entries (directories first, then files)
         entries_vec.sort_by(|a, b| {
-            let a_is_dir = a.file_type().map(|ft| ft.is_dir()).unwrap_or(false);
-            let b_is_dir = b.file_type().map(|ft| ft.is_dir()).unwrap_or(false);
+            let a_ft = std::fs::metadata(a.path()).map(|m| m.is_dir()).unwrap_or(false);
+            let b_ft = std::fs::metadata(b.path()).map(|m| m.is_dir()).unwrap_or(false);
             
-            if a_is_dir && !b_is_dir {
+            if a_ft && !b_ft {
                 std::cmp::Ordering::Less
-            } else if !a_is_dir && b_is_dir {
+            } else if !a_ft && b_ft {
                 std::cmp::Ordering::Greater
             } else {
                 a.file_name().cmp(&b.file_name())

@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use std::fmt::Debug;
 
 use anyhow::Result;
@@ -33,7 +32,7 @@ pub mod rewrite;
 pub mod proxy;
 pub mod security;
 
-use crate::config::{ServerConfig, ModuleConfig};
+use crate::config::ServerConfig;
 
 // Load enabled modules from configuration
 pub async fn load_modules(config: &ServerConfig) -> Result<Vec<Box<dyn Module>>> {

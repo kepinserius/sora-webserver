@@ -1,9 +1,8 @@
 use std::collections::HashSet;
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::net::IpAddr;
 use std::str::FromStr;
-use std::sync::Arc;
 
-use cidr::{Cidr, Ipv4Cidr, Ipv6Cidr};
+use cidr::{Ipv4Cidr, Ipv6Cidr};
 use hyper::{Body, Request, Response, StatusCode};
 use regex::Regex;
 use once_cell::sync::Lazy;
@@ -30,6 +29,7 @@ static ATTACK_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
 });
 
 // Firewall rules for IP blocking, path filtering, etc.
+#[derive(Debug)]
 pub struct Firewall {
     // IP addresses to block
     blocked_ips: HashSet<IpAddr>,
@@ -45,7 +45,7 @@ pub struct Firewall {
     detect_attacks: bool,
 }
 
-// Represents an IP range using CIDR
+#[derive(Debug)]
 enum IpRange {
     V4(Ipv4Cidr),
     V6(Ipv6Cidr),
@@ -56,7 +56,7 @@ impl IpRange {
         match (self, ip) {
             (IpRange::V4(range), IpAddr::V4(addr)) => range.contains(addr),
             (IpRange::V6(range), IpAddr::V6(addr)) => range.contains(addr),
-            _ => false, // IPv4 range can't contain IPv6 address and vice versa
+            _ => false,
         }
     }
 }

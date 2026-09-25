@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -86,23 +85,16 @@ impl RewriteModule {
     
     // Process a request through the rewrite rules
     fn process_request(&self, req: &mut Request<Body>) -> Option<Response<Body>> {
-        let path = req.uri().path();
-        let query = req.uri().query();
+        let path = req.uri().path().to_string();
+        let query = req.uri().query().map(|q| q.to_string());
         
-        // Try each rewrite rule
         for rule in &self.rules {
-            // Check if the rule matches the path
-            if let Some(captures) = rule.pattern.captures(path) {
-                // Perform substitution with captures
-                let mut new_path = rule.pattern.replace(path, &rule.replacement).to_string();
+            if let Some(_captures) = rule.pattern.captures(&path) {
+                let mut new_path = rule.pattern.replace(&path, &rule.replacement).to_string();
                 
                 // Append query string if needed
                 let new_query = if rule.flags.query_string {
-                    if let Some(q) = query {
-                        Some(q.to_string())
-                    } else {
-                        None
-                    }
+                    query.clone()
                 } else {
                     // Extract query string from replacement if present
                     if let Some(query_pos) = new_path.find('?') {

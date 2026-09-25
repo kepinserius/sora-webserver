@@ -54,7 +54,7 @@ impl CacheModule {
     
     // Check if a response is cacheable
     fn is_cacheable_response(&self, res: &Response<Body>) -> bool {
-        self.cacheable_status.contains(res.status())
+        self.cacheable_status.contains(&res.status())
     }
     
     // Generate a cache key for a request

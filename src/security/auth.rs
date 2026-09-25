@@ -19,7 +19,7 @@ pub fn verify_basic_auth(req: &Request<Body>, auth_config: &BasicAuthConfig) -> 
             // Check if it's basic auth
             if auth_str.starts_with("Basic ") {
                 let credentials = &auth_str["Basic ".len()..];
-                if let Ok(decoded) = BASE64.decode(credentials) {
+                if let Ok(decoded) = BASE64.decode(credentials.as_bytes()) {
                     if let Ok(auth_string) = String::from_utf8(decoded) {
                         // Split into username and password
                         if let Some(separator_pos) = auth_string.find(':') {
@@ -91,12 +91,12 @@ pub fn verify_password(password: &str, stored_hash: &str) -> bool {
         Err(_) => return false,
     };
     
-    let salt = match BASE64.decode(parts[3]) {
+    let salt: Vec<u8> = match BASE64.decode(parts[3]) {
         Ok(s) => s,
         Err(_) => return false,
     };
     
-    let hash = match BASE64.decode(parts[4]) {
+    let hash: Vec<u8> = match BASE64.decode(parts[4]) {
         Ok(h) => h,
         Err(_) => return false,
     };

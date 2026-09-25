@@ -9,6 +9,8 @@ use anyhow::{Context, Result};
 
 pub struct TlsConfig {
     server_config: Arc<ServerConfig>,
+    cert_path: std::path::PathBuf,
+    key_path: std::path::PathBuf,
 }
 
 impl TlsConfig {
@@ -61,6 +63,8 @@ impl TlsConfig {
 
         Ok(Self {
             server_config: Arc::new(config),
+            cert_path: cert_path.as_ref().to_path_buf(),
+            key_path: key_path.as_ref().to_path_buf(),
         })
     }
 
@@ -72,7 +76,7 @@ impl TlsConfig {
         self.server_config.clone()
     }
 
-    pub fn with_client_auth<P: AsRef<Path>>(mut self, ca_cert_path: P) -> Result<Self> {
+    pub fn with_client_auth<P: AsRef<Path>>(self, ca_cert_path: P) -> Result<Self> {
         let ca_cert_file = File::open(&ca_cert_path)
             .with_context(|| format!("Failed to open CA certificate file {:?}", ca_cert_path.as_ref()))?;
         let mut ca_cert_reader = BufReader::new(ca_cert_file);
@@ -82,23 +86,35 @@ impl TlsConfig {
             .map(Certificate)
             .collect::<Vec<_>>();
         
-        // Create client verification config
         let mut client_auth_roots = rustls::RootCertStore::empty();
         for ca_cert in ca_certs {
             client_auth_roots.add(&ca_cert)?;
         }
 
-        // Create new config with client auth
+        let verifier = rustls::server::AllowAnyAuthenticatedClient::new(client_auth_roots);
+
+        let cert_file = File::open(&self.cert_path)?;
+        let mut cert_reader = BufReader::new(cert_file);
+        let cert_chain = rustls_pemfile::certs(&mut cert_reader)?
+            .into_iter()
+            .map(Certificate)
+            .collect();
+
+        let key_file = File::open(&self.key_path)?;
+        let mut key_reader = BufReader::new(key_file);
+        let keys = rustls_pemfile::rsa_private_keys(&mut key_reader)?;
+        let private_key = PrivateKey(keys[0].clone());
+
         let config = ServerConfig::builder()
             .with_safe_defaults()
-            .with_client_cert_verifier(Arc::new(rustls::server::AllowAnyAuthenticatedClient::new(client_auth_roots)))
-            .with_single_cert(
-                self.server_config.certificates().to_vec(), 
-                self.server_config.key_log.clone()
-            )
+            .with_client_cert_verifier(verifier)
+            .with_single_cert(cert_chain, private_key)
             .context("Failed to create TLS configuration with client auth")?;
 
-        self.server_config = Arc::new(config);
-        Ok(self)
+        Ok(Self {
+            server_config: Arc::new(config),
+            cert_path: self.cert_path,
+            key_path: self.key_path,
+        })
     }
 } 

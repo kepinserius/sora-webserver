@@ -1,22 +1,12 @@
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::time::Duration;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use http::{HeaderValue, Method, StatusCode};
 use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Request, Response, Server};
-use tokio::fs::File;
-use tokio::io::AsyncReadExt;
+use hyper::Server;
 use tokio::net::TcpListener;
-use tokio_rustls::TlsAcceptor;
-use tower::ServiceBuilder;
-use tower_http::compression::CompressionLayer;
-use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::ServeDir;
-use tower_http::trace::TraceLayer;
 use tracing::{debug, error, info, warn};
 
 mod config;
@@ -125,7 +115,6 @@ async fn run_http_server(
     vhosts: Vec<VirtualHost>,
     modules: Vec<Box<dyn modules::Module>>,
 ) -> Result<()> {
-    // Create a request handler
     let handler = RequestHandler::new(doc_root, vhosts, modules);
     let handler = Arc::new(handler);
 
@@ -139,7 +128,6 @@ async fn run_http_server(
         }
     });
 
-    // Build and start the server
     let server = Server::bind(&addr)
         .tcp_nodelay(true)
         .serve(make_svc);

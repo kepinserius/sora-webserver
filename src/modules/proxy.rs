@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use anyhow::{Context, Result};
 use async_trait::async_trait;
-use hyper::{Body, Client, Method, Request, Response, StatusCode, Uri, client::HttpConnector};
+use hyper::{Body, Client, Request, Response, StatusCode, Uri, client::HttpConnector};
 use hyper_rustls::HttpsConnector;
 use serde_json::Value;
 use tracing::{debug, error};
@@ -100,8 +100,7 @@ impl ProxyModule {
     
     // Rewrite request URI for the backend
     fn rewrite_uri(&self, req: &Request<Body>, prefix: &str, backend: &str) -> Result<Uri> {
-        let uri = req.uri();
-        let path = uri.path();
+        let path = req.uri().path();
         
         // Remove the prefix from the path
         let backend_path = if prefix == "/" {
@@ -129,7 +128,7 @@ impl ProxyModule {
         }
         
         // Add query parameters if present
-        if let Some(query) = uri.query() {
+        if let Some(query) = req.uri().query() {
             backend_uri.push('?');
             backend_uri.push_str(query);
         }
@@ -142,14 +141,14 @@ impl ProxyModule {
     }
     
     // Create a proxied request
-    fn create_proxied_request(&self, req: &Request<Body>, prefix: &str, backend: &str) -> Result<Request<Body>> {
+    async fn create_proxied_request(&self, req: &Request<Body>, prefix: &str, backend: &str) -> Result<Request<Body>> {
         // Rewrite the URI
         let uri = self.rewrite_uri(req, prefix, backend)?;
         
         // Create a new request with the same method and body
         let mut proxied_req = Request::builder()
             .method(req.method())
-            .uri(uri);
+            .uri(&uri);
         
         // Copy headers from the original request
         let headers = proxied_req.headers_mut().unwrap();
@@ -226,11 +225,8 @@ impl ProxyModule {
             );
         }
         
-        // Get the body from the original request
-        let (parts, body) = req.clone().into_parts();
-        
-        // Build the request
-        let proxied_req = proxied_req.body(body)
+        // Build the request with empty body
+        let proxied_req = proxied_req.body(Body::empty())
             .context("Failed to create proxied request")?;
         
         Ok(proxied_req)
@@ -243,7 +239,7 @@ impl ProxyModule {
             debug!("Proxying request to backend: {}", backend);
             
             // Create a proxied request
-            let proxied_req = self.create_proxied_request(req, prefix, backend)?;
+            let proxied_req = self.create_proxied_request(req, prefix, backend).await?;
             
             // Send the request with a timeout
             match tokio::time::timeout(

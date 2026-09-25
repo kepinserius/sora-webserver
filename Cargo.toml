@@ -33,7 +33,9 @@ cidr = "0.2"
 rand = "0.8"
 hyper-rustls = { version = "0.23", features = ["http2"] }
 chrono = "0.4"
-base64 = "0.13"
+base64 = "0.22"
+toml = "0.8"
+flate2 = "1.0"
 ring = "0.16"
 num_cpus = "1.13"
 

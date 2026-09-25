@@ -50,6 +50,33 @@ pub struct SecuritySettings {
     pub rate_limit_window: u64,
 }
 
+impl Default for SecuritySettings {
+    fn default() -> Self {
+        Self {
+            enable_https: false,
+            enable_hsts: false,
+            hsts_max_age: 31536000,
+            enable_cors: false,
+            allowed_origins: vec!["*".to_string()],
+            allowed_methods: vec!["GET".to_string(), "POST".to_string()],
+            enable_csrf_protection: false,
+            enable_xss_protection: true,
+            enable_clickjacking_protection: true,
+            enable_csp: false,
+            content_security_policy: "default-src 'self'".to_string(),
+            ssl_protocols: vec!["TLSv1.2".to_string(), "TLSv1.3".to_string()],
+            ssl_ciphers: vec![],
+            dhparam_file: None,
+            enable_ocsp_stapling: false,
+            ocsp_responder: None,
+            enable_http2: true,
+            rate_limiting: false,
+            rate_limit_requests: 100,
+            rate_limit_window: 60,
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct LoggingSettings {
     pub level: String,

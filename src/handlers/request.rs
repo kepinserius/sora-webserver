@@ -1,19 +1,17 @@
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 use std::time::Instant;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use hyper::{Body, Method, Request, Response, StatusCode, header};
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 use mime_guess::from_path;
-use tracing::{debug, error, info};
+use tracing::{debug, error};
 
 use crate::handlers::error;
 use crate::modules::Module;
 use crate::security;
 use crate::vhost::{VirtualHost, Location, find_virtual_host};
-use crate::security::auth;
 
 // Main request handler for the server
 pub struct RequestHandler {
@@ -40,7 +38,7 @@ impl RequestHandler {
     }
     
     // Handle an incoming HTTP request
-    pub async fn handle(&self, req: Request<Body>) -> Result<Response<Body>> {
+    pub async fn handle(&self, mut req: Request<Body>) -> Result<Response<Body>> {
         let start_time = Instant::now();
         
         // Log the request
@@ -57,18 +55,16 @@ impl RequestHandler {
         
         // Execute pre-processing modules
         for module in &self.modules {
-            match module.pre_process(&mut Request::clone(&req)).await {
+            match module.pre_process(&mut req).await {
                 Ok(Some(response)) => {
-                    // Module handled the request, return the response
                     let processing_time = start_time.elapsed();
-                    let bytes_sent = response.body().size_hint().upper().unwrap_or(0);
                     
                     crate::logging::log_request(
                         &req,
                         &response,
                         &client_ip,
                         processing_time,
-                        bytes_sent as usize,
+                        0,
                     );
                     
                     return Ok(response);
@@ -133,14 +129,13 @@ impl RequestHandler {
         
         // Log the completed request
         let processing_time = start_time.elapsed();
-        let bytes_sent = response.body().size_hint().upper().unwrap_or(0);
         
         crate::logging::log_request(
             &req,
             &response,
             &client_ip,
             processing_time,
-            bytes_sent as usize,
+            0,
         );
         
         Ok(response)
@@ -161,10 +156,10 @@ impl RequestHandler {
         
         // Check if location has basic auth
         if let Some(loc) = location {
-            if let Some(auth_config) = &loc.basic_auth {
+            if let Some(_auth_config) = &loc.basic_auth {
                 // TODO: Implement basic auth check
             }
-        } else if let Some(auth_config) = &vhost.basic_auth {
+        } else if let Some(_auth_config) = &vhost.basic_auth {
             // TODO: Implement basic auth check
         }
         
@@ -274,10 +269,9 @@ impl RequestHandler {
         
         // Add Last-Modified header
         if let Ok(modified) = metadata.modified() {
-            if let Ok(modified_time) = httpdate::fmt_http_date(modified) {
-                if let Ok(header_value) = header::HeaderValue::from_str(&modified_time) {
-                    response.headers_mut().insert(header::LAST_MODIFIED, header_value);
-                }
+            let modified_time = httpdate::fmt_http_date(modified);
+            if let Ok(header_value) = header::HeaderValue::from_str(&modified_time) {
+                response.headers_mut().insert(header::LAST_MODIFIED, header_value);
             }
         }
         
@@ -305,7 +299,7 @@ impl RequestHandler {
     }
     
     // Handle POST requests
-    async fn handle_post(&self, req: &Request<Body>) -> Result<Response<Body>> {
+    async fn handle_post(&self, _req: &Request<Body>) -> Result<Response<Body>> {
         // TODO: Implement POST handling (for form submissions, etc)
         
         // For now, just return 405 Method Not Allowed
@@ -320,7 +314,7 @@ impl RequestHandler {
     }
     
     // Handle PUT requests
-    async fn handle_put(&self, req: &Request<Body>) -> Result<Response<Body>> {
+    async fn handle_put(&self, _req: &Request<Body>) -> Result<Response<Body>> {
         // TODO: Implement PUT handling (for uploads, etc)
         
         // For now, just return 405 Method Not Allowed
@@ -335,7 +329,7 @@ impl RequestHandler {
     }
     
     // Handle DELETE requests
-    async fn handle_delete(&self, req: &Request<Body>) -> Result<Response<Body>> {
+    async fn handle_delete(&self, _req: &Request<Body>) -> Result<Response<Body>> {
         // TODO: Implement DELETE handling
         
         // For now, just return 405 Method Not Allowed
